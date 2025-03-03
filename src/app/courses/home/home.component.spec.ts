@@ -16,6 +16,8 @@ describe('HomeComponent', () => {
   let coursesService: any;
 
   const beginnerCourses = setupCourses().filter(course => course.category == 'BEGINNER');
+  const advancedCourses = setupCourses().filter(course => course.category == 'ADVANCED');
+  
 
   beforeEach(waitForAsync(() => {
 
@@ -61,6 +63,67 @@ describe('HomeComponent', () => {
     expect(tabs.length).toBe(1, "Unexpected number of tabs found");
 
   });
+
+  it("should display only advanced courses", () => {
+    coursesService.findAllCourses.and.returnValue(of(advancedCourses));
+
+    fixture.detectChanges();
+
+    const tabs = el.queryAll(By.css('.mat-mdc-tab'));
+
+    expect(tabs.length).toBe(1, "Unexpected number of tabs found");
+
+  });  
+
+  it("should display both tabs", () => {
+    coursesService.findAllCourses.and.returnValue(of(setupCourses()));
+
+    fixture.detectChanges();
+
+    const tabs = el.queryAll(By.css('.mat-mdc-tab'));
+
+    expect(tabs.length).toBe(2, "Unexpected number of tabs found");
+  });  
+
+  const ButtonClickEvents = {
+    left:  { button: 0 },
+    right: { button: 2 }
+  };
+
+  function createClickEvent(el: DebugElement | HTMLElement, eventObj: any = ButtonClickEvents.left): void {
+    if (el instanceof HTMLElement) {
+      el.click();
+    } else {
+      el.triggerEventHandler('click', eventObj);
+    }
+  }
+  
+  it("should display advanced courses when tab clicked", () => {
+
+    //Get Data
+    coursesService.findAllCourses.and.returnValue(of(setupCourses()));
+
+    // Reflect changes to DOM
+    fixture.detectChanges();
+
+    // Get tabs component
+    const tabs = el.queryAll(By.css('.mat-mdc-tab'));
+
+    // Simulate a click on 2nd Tab, with left mouse button
+
+    createClickEvent(tabs[1]);
+    fixture.detectChanges();
+
+    // Resolve asyncronous page opration with delay timer
+    setTimeout( () => {
+      const cardTitles = el.queryAll(By.css('.mat-mdc-card-title'));
+      expect(cardTitles.length).toBeGreaterThan(0, "Could not find card titles");
+      expect(cardTitles[0].nativeElement.textContent).toContain("Angular Security Course");
+    }, 500);
+  });  
+
+
+  
 
 });
 
