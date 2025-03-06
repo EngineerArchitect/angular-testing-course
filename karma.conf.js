@@ -10,24 +10,42 @@ module.exports = function (config) {
       require('karma-chrome-launcher'),
       require('karma-jasmine-html-reporter'),
       require('karma-coverage-istanbul-reporter'),
+      require('karma-coverage'),
       require('@angular-devkit/build-angular/plugins/karma')
     ],
     client:{
       clearContext: false // leave Jasmine Spec Runner output visible in browser
     },
-    coverageIstanbulReporter: {
-      dir: require('path').join(__dirname, 'coverage'), reports: [ 'html', 'lcovonly' ],
-      fixWebpackSourcePaths: true
-    },
+    // coverageIstanbulReporter: {
+    //   dir: require('path').join(__dirname, 'coverage'), reports: [ 'html', 'lcovonly' ],
+    //   fixWebpackSourcePaths: true
+    // },
+    coverageReporter: {
+      dir: require('path').join(__dirname, './coverage'),
+      reporters: [{ type: 'lcov', subdir: 'lcov' }],
+    },    
     angularCli: {
       environment: 'dev'
     },
-    reporters: ['progress', 'kjhtml'],
+    customLaunchers: {
+      ChromeHeadless: {
+        base: 'Chrome',
+        flags: [
+          '--no-sandbox',
+          '--disable-gpu',
+          '--headless',
+          '--remote-debugging-port=9222'
+        ]
+      }
+    },    
+    // reporters: ['progress', 'kjhtml'],
+    reporters: ['progress', 'coverage'],    
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,
-    autoWatch: true,
+    autoWatch: false,
     browsers: ['Chrome'],
-    singleRun: false
+    singleRun: true,
+    restartOnFileChange: false,
   });
 };
